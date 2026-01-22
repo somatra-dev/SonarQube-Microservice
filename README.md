@@ -40,12 +40,12 @@ rootProject/
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Java | 21 | Programming language |
-| Spring Boot | 4.0.1 | Application framework |
-| Gradle | 8.14 | Build tool |
-| PostgreSQL | 16 | Database |
-| JaCoCo | 0.8.12 | Code coverage |
-| SonarQube | LTS | Code quality analysis |
+| Java | 21      | Programming language |
+| Spring Boot | 4.0.1   | Application framework |
+| Gradle | 9.2     | Build tool |
+| PostgreSQL | 16      | Database |
+| JaCoCo | 0.8.12  | Code coverage |
+| SonarQube | LTS     | Code quality analysis |
 
 ## Prerequisites
 

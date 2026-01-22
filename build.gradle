@@ -51,7 +51,7 @@ sonar {
         property "sonar.host.url", "http://localhost:9000"
         property "sonar.sourceEncoding", "UTF-8"
         property "sonar.java.source", "21"
-        property "sonar.login", {SONAR_TOKEN}
+        property "sonar.login", System.getenv("SONAR_TOKEN") ?: ""
     }
 }
 
