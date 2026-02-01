@@ -24,7 +24,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final OrderClient orderClient;
-    private final String message = "Product not found with uuid: ";
 
     @Override
     @Transactional
