@@ -175,6 +175,18 @@ class OrderServiceImplTest {
                     .isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Order not found");
         }
+
+        @Test
+        @DisplayName("Should propagate error when product service fails")
+        void shouldPropagateWhenProductServiceFails() {
+            when(orderRepository.findByUuid(TEST_ORDER_UUID)).thenReturn(Optional.of(testOrder));
+            when(productClient.findProductByUuid(TEST_PRODUCT_UUID))
+                    .thenThrow(new ResponseStatusException(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE, "Downstream error"));
+
+            assertThatThrownBy(() -> orderService.findByUuid(TEST_ORDER_UUID))
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Downstream error");
+        }
     }
 
     @Nested

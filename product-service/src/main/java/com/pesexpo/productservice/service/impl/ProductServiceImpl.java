@@ -24,6 +24,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final OrderClient orderClient;
+    private static final String PRODUCT_NOT_FOUND_WITH_UUID = "Product not found with uuid: ";
 
     @Override
     @Transactional
@@ -39,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseProduct findById(String uuid) {
         Product product = productRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with uuid: " + uuid));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_WITH_UUID + uuid));
 
         return mapToResponseProduct(product);
     }
@@ -55,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void updateProduct(String uuid, UpdateProduct updateProduct) {
         Product product = productRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with uuid: " + uuid));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_WITH_UUID + uuid));
 
         if (updateProduct.productName() != null) {
             product.setProductName(updateProduct.productName());
@@ -71,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteProduct(String uuid) {
         if (!productRepository.existsByUuid(uuid)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with uuid: " + uuid);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_WITH_UUID + uuid);
         }
         productRepository.deleteByUuid(uuid);
     }

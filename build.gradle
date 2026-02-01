@@ -43,6 +43,61 @@ jacocoTestReport {
     }
 }
 
+subprojects {
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = "0.8.12"
+    }
+
+    plugins.withId('java') {
+        tasks.withType(Test).configureEach {
+            useJUnitPlatform()
+            finalizedBy tasks.withType(JacocoReport)
+        }
+
+        tasks.withType(JacocoReport).configureEach {
+            dependsOn tasks.named('test')
+            reports {
+                xml.required = true
+                html.required = true
+            }
+        }
+    }
+
+    sonar {
+        properties {
+            property "sonar.coverage.jacoco.xmlReportPaths",
+                    layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.path
+        }
+    }
+}
+
+tasks.register('jacocoRootReport', JacocoReport) {
+    reports {
+        xml.required = true
+        html.required = true
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/jacocoRootReport/jacocoRootReport.xml")
+        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/jacocoRootReport/html")
+    }
+}
+
+gradle.projectsEvaluated {
+    def javaProjects = subprojects.findAll { it.plugins.hasPlugin('java') }
+    tasks.named('jacocoRootReport', JacocoReport).configure {
+        dependsOn javaProjects.collect { it.tasks.named('test') }
+        executionData.from(javaProjects.collect {
+            it.fileTree(dir: it.layout.buildDirectory, includes: ["jacoco/*.exec", "jacoco/*.ec"])
+        })
+        sourceDirectories.from(javaProjects.collect {
+            it.extensions.getByType(SourceSetContainer).main.allSource.srcDirs
+        })
+        classDirectories.from(javaProjects.collect {
+            it.extensions.getByType(SourceSetContainer).main.output
+        })
+    }
+}
+
 // SonarQube configuration
 sonar {
     properties {
@@ -52,5 +107,17 @@ sonar {
         property "sonar.sourceEncoding", "UTF-8"
         property "sonar.java.source", "21"
         property "sonar.token", System.getenv("SONAR_TOKEN") ?: ""
+        property "sonar.exclusions", "src/main/java/com/pesexpo/rootproject/**,src/test/java/com/pesexpo/rootproject/**"
+        property "sonar.coverage.jacoco.xmlReportPaths",
+                layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.path
     }
+}
+
+tasks.named('sonar') {
+    dependsOn(
+            ":product-service:test",
+            ":order-service:test",
+            "test",
+            "jacocoRootReport"
+    )
 }
